@@ -1,0 +1,23 @@
+services:
+  duckdb-bridge:
+    build: .
+    container_name: duckdb-quack-bridge
+    env_file:
+      - .env
+    restart: unless-stopped
+    networks:
+      - db_network # Alias internal compose file
+    ports:
+      - "${SERVER_HOST:-127.0.0.1}:${SERVER_PORT:-9494}:9494"
+    healthcheck:
+      test: ["CMD", "python", "healthcheck.py"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+networks:
+  db_network:
+    external: true
+    # Mengambil nilai dari .env, jika tidak ada/dikomen akan fallback ke 'mariadb-network'
+    name: ${MARIADB_CONNECTION_NETWORK:-mariadb-network}
